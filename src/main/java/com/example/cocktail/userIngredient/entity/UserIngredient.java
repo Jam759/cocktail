@@ -1,7 +1,5 @@
 package com.example.cocktail.userIngredient.entity;
 
-
-import com.example.cocktail.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 @Entity
