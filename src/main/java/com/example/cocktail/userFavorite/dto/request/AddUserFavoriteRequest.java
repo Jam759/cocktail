@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class CreateUserFavoriteRequest {
+public class AddUserFavoriteRequest {
 
     @NotBlank(message = "cocktailId는 비어있을 수 없습니다.")
     private Long cocktailId;

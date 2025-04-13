@@ -4,9 +4,9 @@ import com.example.cocktail.cocktail.entity.Cocktail;
 import com.example.cocktail.cocktail.repository.CocktailRepository;
 import com.example.cocktail.common.exception.DuplicatedException;
 import com.example.cocktail.common.exception.NotFoundException;
-import com.example.cocktail.userFavorite.document.UserFavorite;
+import com.example.cocktail.userFavorite.document.UserFavorites;
 import com.example.cocktail.userFavorite.dto.UserFavoriteDtoConverter;
-import com.example.cocktail.userFavorite.dto.request.CreateUserFavoriteRequest;
+import com.example.cocktail.userFavorite.dto.request.AddUserFavoriteRequest;
 import com.example.cocktail.userFavorite.dto.response.FavoriteCocktailsResponse;
 import com.example.cocktail.userFavorite.repository.UserFavoriteRepository;
 import com.example.cocktail.userFavorite.service.UserFavoriteService;
@@ -24,12 +24,12 @@ public class UserFavoriteServiceImpl implements UserFavoriteService {
     private final CocktailRepository cocktailRepository;
 
 
-    public CreateUserFavoriteRequest CreateUserFavorite(CreateUserFavoriteRequest request) {
-        Long userId = 0L; // 실제로는 토큰을 통해 사용자 ID를 가져와야 함
+    public AddUserFavoriteRequest AddUserFavorite(AddUserFavoriteRequest request) {
+        Long userId = null; // 실제로는 토큰을 통해 사용자 ID를 가져와야 함
 
         // 기존 사용자 즐겨찾기 조회, 없으면 새로 생성
-        UserFavorite userFavorite = userFavoriteRepository.findById(userId)
-                .orElseGet(() -> new UserFavorite(userId, new ArrayList<>()));
+        UserFavorites userFavorite = userFavoriteRepository.findById(userId)
+                .orElseGet(() -> new UserFavorites(userId, new ArrayList<>()));
 
         // 중복 검사
         boolean isDuplicate = userFavorite.getCocktailIdList().stream()
@@ -40,7 +40,7 @@ public class UserFavoriteServiceImpl implements UserFavoriteService {
         }
 
         // 중복이 없으면 추가
-        userFavorite.getCocktailIdList().add(request.getCocktailId());
+        userFavorite.addFavoriteCocktail(request.getCocktailId());
         userFavoriteRepository.save(userFavorite);
 
         // 응답 DTO 생성 및 반환
@@ -49,14 +49,24 @@ public class UserFavoriteServiceImpl implements UserFavoriteService {
 
     public List<FavoriteCocktailsResponse> GetUserFavoriteCocktailList(){
 
-        Long userId = 0L; // 실제로는 토큰을 통해 사용자 ID를 가져와야 함
+        Long userId = null; // 실제로는 토큰을 통해 사용자 ID를 가져와야 함
 
-        UserFavorite userFavorite = userFavoriteRepository.findById(userId)
+        UserFavorites userFavorite = userFavoriteRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("현재 유저 즐겨찾기를 한 칵테일이 없음"));
-
 
         List<Cocktail> cocktailList = cocktailRepository.findAllById(userFavorite.getCocktailIdList());
         return UserFavoriteDtoConverter.EntityToFavoriteCocktailsResponseList(cocktailList);
+
+    }
+
+    public void deletedUserFavoriteCocktail(Long cocktailId){
+
+        Long userId = null; // 실제로는 토큰을 통해 사용자 ID를 가져와야 함
+
+        UserFavorites userFavorite = userFavoriteRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("유저를 찾을 수 없음 userId : "+ userId));
+
+        userFavorite.deletedFavoriteCocktail(cocktailId);
 
     }
 
