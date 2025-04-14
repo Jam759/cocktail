@@ -22,4 +22,6 @@ public class Cocktail {
 
     private String imgPath;
 
+    private Integer rating; // min : 0  max : 5
+
 }
